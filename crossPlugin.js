@@ -11,8 +11,17 @@
 // ==/UserScript==
 
 class CrossPlugin {
-    static run(config) {
-        let cards = this.findCards(config.elementSelector);
+    config;
+
+    constructor(config) {
+        this.config = config;
+    }
+
+    startWatch (step = 400) {
+        setInterval(function() { this.run() }.bind(this), step);
+    }
+    run() {
+        let cards = this.findCards(this.config.elementSelector);
         if (cards.length === 0) {
             return;
         }
@@ -23,40 +32,39 @@ class CrossPlugin {
         this.addListeners(cards, config.elementSelector, config.linkSelector);
     }
 
-    static findCards(selector) {
+    findCards(selector) {
         return document.querySelectorAll(selector + ':not(.element-with-close)');
     }
 
-    static paintButtons(items, buttonConfig) {
+    paintButtons(items, buttonConfig) {
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
-            this.paintButton(item, buttonConfig);
+            Painter.paintButton(item, buttonConfig);
         }
     }
 
-    static addListeners(items, selector, valueSelector) {
+    addListeners(items, selector, valueSelector) {
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
 
             item.querySelector('.close-hide-element').addEventListener('click', function (e) {
                 e.preventDefault();
-                CrossPlugin.removeEl(e.target.parentNode);
+                Painter.hideCard(e.target.parentNode);
                 Storage.add(item.querySelector(valueSelector).href)
             });
         }
     }
 
-
-    static checkRemoveCards(items) {
+    checkRemoveCards(items) {
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
             if (this.checkElementNeedRemove(item)) {
-                CrossPlugin.removeEl(item);
+                Painter.hideCard(item);
             }
         }
     }
 
-    static checkElementNeedRemove(item) {
+    checkElementNeedRemove(item) {
         let a = item.querySelector('a');
         if (a) {
             let href = Storage.clear(a.href);
@@ -66,7 +74,9 @@ class CrossPlugin {
         }
         return false;
     }
+}
 
+class Painter {
     static paintButton(item, buttonConfig) {
         let div = document.createElement('div');
 
@@ -85,7 +95,7 @@ class CrossPlugin {
         item.classList.add('element-with-close');
     }
 
-    static removeEl(el) {
+    static hideCard(el) {
         el.style.opacity = '0.1';
 
         let div = document.createElement('div');
@@ -182,12 +192,9 @@ class HostConfig {
 let config = HostConfig.get(document.location.host);
 Storage.init();
 
-load();
 
-function load() {
-    setInterval(function () { CrossPlugin.run(config); }, 400);
-}
-
+let crossPlugin = new CrossPlugin(config);
+crossPlugin.startWatch();
 
 
 
