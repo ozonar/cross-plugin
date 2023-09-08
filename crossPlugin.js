@@ -1,13 +1,17 @@
 // ==UserScript==
 // @name         Cross plugin
-// @namespace    http://tampermonkey.net/
-// @version      0.3
-// @description  try to close the world!
-// @author       Anarhistov
+// @version      1.0
+// @description:ru  Плагин добавляет кнопку закрытия карточки на популярные сайты
+// @description  Add cross button to popular sites
+// @author       Ozonar
 // @match        https://www.ozon.ru/*
 // @match        https://www.dns-shop.ru/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
+// @downloadURL      https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.js
+// @updateURL        https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.js
+// @supportURL       https://github.com/ozonar/cross-plugin/issues
+// @homepageURL      https://github.com/ozonar/cross-plugin
 // ==/UserScript==
 
 class CrossPlugin {
@@ -19,6 +23,7 @@ class CrossPlugin {
 
     constructor(config) {
         this.config = config;
+        Storage.init();
     }
 
     startWatch (step = 400) {
@@ -38,8 +43,8 @@ class CrossPlugin {
     updateDom (cards) {
         for (let i = 0; i < cards.length; i++) {
             let card = cards[i];
-            Painter.paintButton(card, config.buttonConfig);
-            this.addListener(card, config.elementSelector, config.linkSelector);
+            Painter.paintButton(card, this.config.buttonConfig);
+            this.addListener(card, this.config.elementSelector, this.config.linkSelector);
 
             if (this.checkElementNeedToHide(card)) {
                 Painter.hideCard(card);
@@ -181,34 +186,14 @@ class HostConfig {
         }
     };
 
+    static getCurrent() {
+        return this.get(document.location.host);
+    }
+
     static get(host) {
         return this.hostList[host];
     }
 }
 
-let config = HostConfig.get(document.location.host);
-Storage.init();
-
-
-let crossPlugin = new CrossPlugin(config);
+let crossPlugin = new CrossPlugin(HostConfig.getCurrent());
 crossPlugin.startWatch();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
