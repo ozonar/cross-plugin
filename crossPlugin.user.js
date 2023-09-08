@@ -89,7 +89,7 @@ class Painter {
         div.style.bottom = buttonConfig.bottom + 'px';
         div.style.borderRadius = '9px';
         div.style.cursor='pointer';
-        div.style.zIndex = '100000';
+        div.style.zIndex = buttonConfig.zIndex ?? 10000;
 
         div.classList.add('close-hide-element');
         item.appendChild(div);
@@ -191,6 +191,7 @@ class HostConfig {
             'linkSelector': 'a',
             'buttonConfig': {
                 'bottom' : 0,
+                'zIndex': 300,
             }
         }
     };
