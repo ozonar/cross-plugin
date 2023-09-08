@@ -90,8 +90,8 @@ class Painter {
         item.classList.add('element-with-close');
     }
 
-    static hideCard(el) {
-        el.style.opacity = '0.1';
+    static hideCard(element) {
+        element.style.opacity = '0.1';
 
         let div = document.createElement('div');
 
@@ -103,16 +103,18 @@ class Painter {
         div.style.zIndex = '100000';
         div.classList.add('hide-card');
 
-        el.appendChild(div);
+        element.appendChild(div);
 
         div.addEventListener('click', function (e) {
             e.preventDefault();
-
-            Storage.delete(e.target.parentElement.querySelector('a').href);
-            e.target.parentElement.style.opacity = '1';
-            e.target.remove();
-
+            Painter.showCard(e.target.parentElement);
         });
+    }
+
+    static showCard (element) {
+        Storage.delete(element.querySelector('a').href);
+        element.style.opacity = '1';
+        element.querySelector('.hide-card').remove();
     }
 }
 
@@ -162,7 +164,7 @@ class Storage {
 }
 
 class HostConfig {
-    static list = {
+    static hostList = {
         'www.ozon.ru': {
             'elementSelector': '.widget-search-result-container > div > div',
             'linkSelector': 'a',
@@ -180,7 +182,7 @@ class HostConfig {
     };
 
     static get(host) {
-        return this.list[host];
+        return this.hostList[host];
     }
 }
 
