@@ -11,7 +11,11 @@
 // ==/UserScript==
 
 class CrossPlugin {
-    config;
+    config = {
+        'elementSelector': '',
+        'linkSelector': '',
+        'buttonConfig': {}
+    };
 
     constructor(config) {
         this.config = config;
@@ -20,51 +24,42 @@ class CrossPlugin {
     startWatch (step = 400) {
         setInterval(function() { this.run() }.bind(this), step);
     }
+
     run() {
         let cards = this.findCards(this.config.elementSelector);
         if (cards.length === 0) {
             return;
         }
-
         console.log('::', 'Start cross plugin. Find elements:', cards.length);
-        this.paintButtons(cards, config.buttonConfig);
-        this.checkRemoveCards(cards);
-        this.addListeners(cards, config.elementSelector, config.linkSelector);
+
+        this.updateDom(cards)
+    }
+
+    updateDom (cards) {
+        for (let i = 0; i < cards.length; i++) {
+            let card = cards[i];
+            Painter.paintButton(card, config.buttonConfig);
+            this.addListener(card, config.elementSelector, config.linkSelector);
+
+            if (this.checkElementNeedToHide(card)) {
+                Painter.hideCard(card);
+            }
+        }
     }
 
     findCards(selector) {
         return document.querySelectorAll(selector + ':not(.element-with-close)');
     }
 
-    paintButtons(items, buttonConfig) {
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-            Painter.paintButton(item, buttonConfig);
-        }
+    addListener(item, selector, valueSelector) {
+        item.querySelector('.close-hide-element').addEventListener('click', function (e) {
+            e.preventDefault();
+            Painter.hideCard(e.target.parentNode);
+            Storage.add(item.querySelector(valueSelector).href)
+        });
     }
 
-    addListeners(items, selector, valueSelector) {
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-
-            item.querySelector('.close-hide-element').addEventListener('click', function (e) {
-                e.preventDefault();
-                Painter.hideCard(e.target.parentNode);
-                Storage.add(item.querySelector(valueSelector).href)
-            });
-        }
-    }
-
-    checkRemoveCards(items) {
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-            if (this.checkElementNeedRemove(item)) {
-                Painter.hideCard(item);
-            }
-        }
-    }
-
-    checkElementNeedRemove(item) {
+    checkElementNeedToHide(item) {
         let a = item.querySelector('a');
         if (a) {
             let href = Storage.clear(a.href);
