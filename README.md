@@ -9,5 +9,5 @@
 
 
 ## Список поддерживаемых сайтов:
-- **[DNS Shop](https://dns-shop.com)**
+- **[DNS Shop](https://dns-shop.ru)**
 - **[Ozon](https://ozon.com)**
