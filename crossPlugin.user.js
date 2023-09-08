@@ -8,8 +8,8 @@
 // @match        https://www.dns-shop.ru/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
-// @downloadURL      https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.js
-// @updateURL        https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.js
+// @downloadURL      https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.user.js
+// @updateURL        https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.user.js
 // @supportURL       https://github.com/ozonar/cross-plugin/issues
 // @homepageURL      https://github.com/ozonar/cross-plugin
 // ==/UserScript==
