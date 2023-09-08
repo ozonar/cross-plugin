@@ -6,6 +6,7 @@
 // @author       Ozonar
 // @match        https://www.ozon.ru/*
 // @match        https://www.dns-shop.ru/*
+// @match        https://www.wildberries.ru/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // @downloadURL      https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.user.js
@@ -88,6 +89,7 @@ class Painter {
         div.style.bottom = buttonConfig.bottom + 'px';
         div.style.borderRadius = '9px';
         div.style.cursor='pointer';
+        div.style.zIndex = '100000';
 
         div.classList.add('close-hide-element');
         item.appendChild(div);
@@ -182,6 +184,13 @@ class HostConfig {
             'linkSelector': 'a',
             'buttonConfig': {
                 'bottom' : 15,
+            }
+        },
+        'www.wildberries.ru': {
+            'elementSelector': '.product-card-list .product-card',
+            'linkSelector': 'a',
+            'buttonConfig': {
+                'bottom' : 0,
             }
         }
     };
