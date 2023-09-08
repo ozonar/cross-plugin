@@ -38,7 +38,7 @@ class CrossPlugin {
         }
         console.log('::', 'Start cross plugin. Find elements:', cards.length);
 
-        this.updateDom(cards)
+        this.updateDom(cards);
     }
 
     updateDom (cards) {
@@ -61,7 +61,7 @@ class CrossPlugin {
         item.querySelector('.close-hide-element').addEventListener('click', function (e) {
             e.preventDefault();
             Painter.hideCard(e.target.parentNode);
-            Storage.add(item.querySelector(valueSelector).href)
+            Storage.add(item.querySelector(valueSelector).href);
         });
     }
 
@@ -141,7 +141,7 @@ class Storage {
         let clearItem = Storage.clear(item);
 
         let val = Storage.items.indexOf(clearItem);
-        if (val) {
+        if (val>=0) {
             Storage.items.splice(val, 1);
             Storage.save();
         }
