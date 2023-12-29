@@ -1,19 +1,27 @@
 // ==UserScript==
 // @name         Cross plugin
-// @version      1.0
+// @version      1.1
 // @description:ru  Плагин добавляет кнопку закрытия карточки на популярные сайты
 // @description  Add cross button to popular sites
 // @author       Ozonar
 // @match        https://www.ozon.ru/*
 // @match        https://www.dns-shop.ru/*
 // @match        https://www.wildberries.ru/*
+// @match        https://vk.com/video/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
-// @grant        none
+// @resource     styles https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.css
+// @grant            GM_getResourceText
+// @grant            GM_addStyle
+// @grant            GM_xmlhttpRequest
 // @downloadURL      https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.user.js
 // @updateURL        https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.user.js
 // @supportURL       https://github.com/ozonar/cross-plugin/issues
 // @homepageURL      https://github.com/ozonar/cross-plugin
 // ==/UserScript==
+
+// Init css
+const my_css = GM_getResourceText("styles");
+GM_addStyle(my_css);
 
 class CrossPlugin {
     config = {
@@ -84,7 +92,7 @@ class Painter {
         div.style.width = '30px';
         div.style.height = '30px';
         div.style.backgroundColor = '#ff9999';
-        div.style.position = 'absolute';
+        div.style.position = buttonConfig.position ?? 'absolute';
         div.style.right = buttonConfig.right ?? 15 + 'px';
         div.style.bottom = buttonConfig.bottom + 'px';
         div.style.borderRadius = '9px';
@@ -142,6 +150,7 @@ class Storage {
 
         let val = Storage.items.indexOf(clearItem);
         if (val>=0) {
+            console.log(clearItem);
             Storage.items.splice(val, 1);
             Storage.save();
         }
@@ -184,6 +193,7 @@ class HostConfig {
             'linkSelector': 'a',
             'buttonConfig': {
                 'bottom' : 15,
+                'zIndex': 9,
             }
         },
         'www.wildberries.ru': {
@@ -193,7 +203,15 @@ class HostConfig {
                 'bottom' : 0,
                 'zIndex': 300,
             }
-        }
+        },
+        'vk.com': {
+            'elementSelector': '.VideoCard',
+            'linkSelector': 'a',
+            'buttonConfig': {
+                'bottom' : 15,
+                'zIndex': 300,
+            }
+        },
     };
 
     static getCurrent() {
