@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Cross plugin
-// @version      1.1
+// @version      1.4
 // @description:ru  Плагин добавляет кнопку закрытия карточки на популярные сайты
 // @description  Add cross button to popular sites
 // @author       Ozonar
@@ -8,6 +8,7 @@
 // @match        https://www.dns-shop.ru/*
 // @match        https://www.wildberries.ru/*
 // @match        https://vk.com/video/*
+// @match        https://www.youtube.com/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @resource     styles https://raw.githubusercontent.com/ozonar/cross-plugin/master/crossPlugin.css
 // @grant            GM_getResourceText
@@ -26,13 +27,15 @@ GM_addStyle(my_css);
 class CrossPlugin {
     config = {
         'elementSelector': '',
-        'linkSelector': '',
+        'link': {'clearType': 'pathname'},
         'buttonConfig': {}
     };
+    static config;
 
     constructor(config) {
         this.config = config;
-        Storage.init();
+        CrossPlugin.config = config;
+        Storage.init('cross-plugin');
     }
 
     startWatch (step = 400) {
@@ -53,7 +56,7 @@ class CrossPlugin {
         for (let i = 0; i < cards.length; i++) {
             let card = cards[i];
             Painter.paintButton(card, this.config.buttonConfig);
-            this.addListener(card, this.config.elementSelector, this.config.linkSelector);
+            this.addListener(card, this.config.elementSelector, this.config.link.selector);
 
             if (this.checkElementNeedToHide(card)) {
                 Painter.hideCard(card);
@@ -69,14 +72,26 @@ class CrossPlugin {
         item.querySelector('.close-hide-element').addEventListener('click', function (e) {
             e.preventDefault();
             Painter.hideCard(e.target.parentNode);
-            Storage.add(item.querySelector(valueSelector).href);
+            let clearName = CrossPlugin.clearLinkByType(item.querySelector(valueSelector).href, CrossPlugin.config.link.clearType);
+            Storage.add(clearName);
         });
+    }
+
+    static clearLinkByType(link, type) {
+        let url = new URL(link, document.location.origin);
+
+        switch (type) {
+            default:
+                return url.pathname;
+            case "params":
+                return url.pathname + url.search;
+        }
     }
 
     checkElementNeedToHide(item) {
         let a = item.querySelector('a');
         if (a) {
-            let href = Storage.clear(a.href);
+            let href = CrossPlugin.clearLinkByType(a.href, CrossPlugin.config.link.clearType);            
             if (Storage.items.includes(href)) {
                 return true;
             }
@@ -115,6 +130,7 @@ class Painter {
         div.style.backgroundColor = '#ffffff';
         div.style.position = 'absolute';
         div.style.opacity = '0';
+        div.style.top = '0';
         div.style.zIndex = '100000';
         div.classList.add('hide-card');
 
@@ -135,10 +151,9 @@ class Painter {
 
 class Storage {
     static items = [];
+    static name = '';
 
-    static add(item) {
-        let clearItem = Storage.clear(item);
-
+    static add(clearItem) {
         if (!Storage.isInArray(clearItem)) {
             Storage.items.push(clearItem);
             Storage.save();
@@ -146,7 +161,7 @@ class Storage {
     }
 
     static delete(item) {
-        let clearItem = Storage.clear(item);
+        let clearItem = CrossPlugin.clearLinkByType(item);
 
         let val = Storage.items.indexOf(clearItem);
         if (val>=0) {
@@ -157,20 +172,16 @@ class Storage {
     }
 
     static save() {
-        localStorage.setItem('cross-plugin', JSON.stringify(Storage.items));
+        localStorage.setItem(Storage.name, JSON.stringify(Storage.items));
     }
 
     static isInArray(href) {
         return Storage.items.includes(href);
     }
 
-    static clear(item) {
-        let url = new URL(item);
-        return url.pathname;
-    }
-
-    static init() {
-        let a = localStorage.getItem('cross-plugin');
+    static init(name) {
+        Storage.name = name;
+        let a = localStorage.getItem(Storage.name);
         if (a) {
             Storage.items = JSON.parse(a);
         } else {
@@ -183,14 +194,14 @@ class HostConfig {
     static hostList = {
         'www.ozon.ru': {
             'elementSelector': '.widget-search-result-container > div > div',
-            'linkSelector': 'a',
             'buttonConfig': {
                 'bottom' : 71,
-            }
+            },
+            'link': {'selector': 'a'}
         },
         'www.dns-shop.ru': {
             'elementSelector': '.catalog-product',
-            'linkSelector': 'a',
+            'link': {'selector': 'a'},
             'buttonConfig': {
                 'bottom' : 15,
                 'zIndex': 9,
@@ -198,7 +209,7 @@ class HostConfig {
         },
         'www.wildberries.ru': {
             'elementSelector': '.product-card-list .product-card',
-            'linkSelector': 'a',
+            'link': {'selector': 'a'},
             'buttonConfig': {
                 'bottom' : 0,
                 'zIndex': 300,
@@ -206,10 +217,23 @@ class HostConfig {
         },
         'vk.com': {
             'elementSelector': '.VideoCard',
-            'linkSelector': 'a',
+            'link': {'selector': 'a'},
             'buttonConfig': {
                 'bottom' : 15,
                 'zIndex': 300,
+            }
+        },
+        'www.youtube.com': {
+            'elementSelector': 'ytd-rich-item-renderer',
+            'linkSelector': 'a',
+            'buttonConfig': {
+                'bottom' : 27,
+                'right' : 0,
+                'zIndex': 300,
+            },
+            'link': {
+                'selector': 'a',
+                'clearType': 'params'
             }
         },
     };
